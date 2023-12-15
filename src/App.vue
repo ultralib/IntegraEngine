@@ -3,15 +3,29 @@ import * as THREE from "three";
 
 import { Globals } from "./core/Globals";
 import { Game } from "./core/Game";
+import { GameObject } from "./core/GameObject";
+import { GameOptions } from "./core/GameOptions";
+import { Terrain } from "./core/objects/Terrain";
+import { Player } from "./core/player/Player";
 
-import { Ref, onMounted, ref } from "vue";
-import AppTree from "./components/AppTree.vue";
+import { onMounted, ref, watch } from "vue";
 import AppNav from "./components/AppNav.vue";
+import AppTransformButtons from "./components/AppTransformButtons.vue";
+import AppTree from "./components/AppTree.vue";
 import AppInspector from "./components/AppInspector.vue";
 
-const nodes: Ref<THREE.Object3D<THREE.Object3DEventMap>[]> = ref([]);
+const nodes = ref<THREE.Object3D<THREE.Object3DEventMap>[]>([]);
+
+// Change transform mode
+const transformMode = ref<"translate" | "rotate" | "scale">("translate");
+watch(transformMode, (val) => {
+    if (!Globals.game) return;
+
+    Globals.game.transform.mode = val;
+});
+
 onMounted(() => {
-    Globals.game = new Game({
+    const gameConfig: GameOptions = {
         antialias: true,
 
         environment: {
@@ -34,7 +48,11 @@ onMounted(() => {
             near: 10,
             far: 20000,
         },
-    });
+    };
+
+    const gameScene: GameObject[] = [new Terrain(100, 100), new Player()];
+
+    Globals.game = new Game(gameScene, gameConfig);
 
     const { game } = Globals;
     game.start();
@@ -46,9 +64,11 @@ onMounted(() => {
 <template>
     <main class="editor">
         <AppNav class="editor__nav" />
+        <AppTransformButtons v-model:model-value="transformMode" class="editor__transform-buttons" />
         <AppTree :nodes="nodes" class="editor__tree" />
-        <div class="viewport"></div>
         <AppInspector class="editor__inspector" />
+
+        <div class="viewport"></div>
     </main>
 </template>
 
@@ -64,6 +84,14 @@ onMounted(() => {
         left: 0;
         top: 0;
         right: 0;
+    }
+    &__transform-buttons {
+        position: absolute;
+        left: 50%;
+        top: 46px; // 38px(nav) + 8px(margin)
+        right: 0;
+
+        transform: translateX(-50%);
     }
     &__tree {
         position: absolute;

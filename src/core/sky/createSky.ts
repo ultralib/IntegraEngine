@@ -5,7 +5,9 @@ import { Sky } from "three/examples/jsm/Addons.js";
 export function createSky(): Sky {
     const sky = new Sky();
     sky.scale.setScalar(450 * 1000);
-    let sun = new THREE.Vector3();
+
+    const sun = new THREE.Vector3();
+
     const uniforms = sky.material.uniforms;
     uniforms["turbidity"].value = 10;
     uniforms["rayleigh"].value = 3;

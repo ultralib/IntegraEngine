@@ -3,7 +3,7 @@ import { Globals } from "../core/Globals";
 
 function play() {
     const { game } = Globals;
-    game?.emulatePlay();
+    game?.toggleEmulatePlay();
 }
 </script>
 <template>
